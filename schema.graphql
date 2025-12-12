@@ -1,55 +1,23 @@
-type ExtensionRegistered @entity(immutable: true) {
-  id: Bytes!
-  extension: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type FeesAccumulated @entity(immutable: true) {
-  id: Bytes!
-  poolId: Bytes! # bytes32
-  amount0: BigInt! # uint128
-  amount1: BigInt! # uint128
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type PoolInitialized @entity(immutable: true) {
   id: Bytes!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+
+  coreAddress: Bytes! # address
   poolId: Bytes! # bytes32
-  poolKey_token0: Bytes! # address
-  poolKey_token1: Bytes! # address
-  poolKey_config: Bytes! # bytes32
+
+  token0: Bytes! # address
+  token1: Bytes! # address
+  config: Bytes! # bytes32
+
+  extension: Bytes! # address
+  fee: BigInt! # uint64
+
+  tickSpacing: Int # uint32
+  stableswapAmplification: Int # uint8
+  stableswapCenterTick: Int # int32
+
   tick: Int! # int32
   sqrtRatio: BigInt! # uint96
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type PositionFeesCollected @entity(immutable: true) {
-  id: Bytes!
-  locker: Bytes! # address
-  poolId: Bytes! # bytes32
-  positionId: Bytes! # bytes32
-  amount0: BigInt! # uint128
-  amount1: BigInt! # uint128
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type PositionUpdated @entity(immutable: true) {
-  id: Bytes!
-  locker: Bytes! # address
-  poolId: Bytes! # bytes32
-  positionId: Bytes! # bytes32
-  liquidityDelta: BigInt! # int128
-  balanceUpdate: Bytes! # bytes32
-  stateAfter: Bytes! # bytes32
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
 }

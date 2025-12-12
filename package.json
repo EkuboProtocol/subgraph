@@ -1,5 +1,5 @@
 {
-  "name": "ekubo",
+  "name": "ekubo-pool-initializations-graph",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
