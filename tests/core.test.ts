@@ -1,48 +1,197 @@
 import {
+  afterEach,
   assert,
+  clearStore,
   describe,
   test,
-  clearStore,
-  beforeAll,
-  afterAll
 } from "matchstick-as/assembly/index"
-import { Address, Bytes, BigInt } from "@graphprotocol/graph-ts"
-import { ExtensionRegistered } from "../generated/schema"
-import { ExtensionRegistered as ExtensionRegisteredEvent } from "../generated/Core/Core"
-import { handleExtensionRegistered } from "../src/core"
-import { createExtensionRegisteredEvent } from "./core-utils"
+import { Address, BigInt, Bytes, store as graphStore } from "@graphprotocol/graph-ts"
+import { handlePoolInitialized } from "../src/core"
+import {
+  buildPoolConfig,
+  createPoolInitializedEvent,
+  getEntityId,
+} from "./helpers"
 
-// Tests structure (matchstick-as >=0.5.0)
-// https://thegraph.com/docs/en/subgraphs/developing/creating/unit-testing-framework/#tests-structure
-
-describe("Describe entity assertions", () => {
-  beforeAll(() => {
-    let extension = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
-    )
-    let newExtensionRegisteredEvent = createExtensionRegisteredEvent(extension)
-    handleExtensionRegistered(newExtensionRegisteredEvent)
-  })
-
-  afterAll(() => {
+describe("handlePoolInitialized", () => {
+  afterEach(() => {
     clearStore()
   })
 
-  // For more test scenarios, see:
-  // https://thegraph.com/docs/en/subgraphs/developing/creating/unit-testing-framework/#write-a-unit-test
-
-  test("ExtensionRegistered created and stored", () => {
-    assert.entityCount("ExtensionRegistered", 1)
-
-    // 0xa16081f360e3847006db660bae1c6d1b2e17ec2a is the default address used in newMockEvent() function
-    assert.fieldEquals(
-      "ExtensionRegistered",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "extension",
-      "0x0000000000000000000000000000000000000001"
+  test("stores concentrated pool fields", () => {
+    const poolId = Bytes.fromHexString(
+      "0x000000000000000000000000000000000000000000000000000000000000c0de"
+    ) as Bytes
+    const token0 = Address.fromString("0x2000000000000000000000000000000000000000")
+    const token1 = Address.fromString("0x3000000000000000000000000000000000000000")
+    const core = Address.fromString("0x4000000000000000000000000000000000000000")
+    const extension = Address.fromString(
+      "0x1000000000000000000000000000000000000001"
     )
 
-    // More assert options:
-    // https://thegraph.com/docs/en/subgraphs/developing/creating/unit-testing-framework/#asserts
+    const tickSpacing: u32 = 60
+    const typeConfig: u32 = 0x80000000 | tickSpacing
+    const fee: u64 = 3000
+    const config = buildPoolConfig(extension, fee, typeConfig)
+    const tick = 15
+    const sqrtRatio = BigInt.fromI32(123456)
+    const blockNumber = BigInt.fromI32(99)
+    const timestamp = BigInt.fromI32(1234)
+
+    const event = createPoolInitializedEvent(
+      poolId,
+      token0,
+      token1,
+      config,
+      tick,
+      sqrtRatio,
+      core,
+      blockNumber,
+      timestamp
+    )
+
+    handlePoolInitialized(event)
+
+    const entityId = getEntityId(event).toHexString()
+
+    assert.entityCount("PoolInitialized", 1)
+    assert.fieldEquals("PoolInitialized", entityId, "coreAddress", core.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "poolId", poolId.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "token0", token0.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "token1", token1.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "config", config.toHexString())
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "extension",
+      extension.toHexString()
+    )
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "fee",
+      BigInt.fromU64(fee).toString()
+    )
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "tickSpacing",
+      tickSpacing.toString()
+    )
+    assert.fieldEquals("PoolInitialized", entityId, "tick", tick.toString())
+    assert.fieldEquals("PoolInitialized", entityId, "sqrtRatio", sqrtRatio.toString())
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "blockNumber",
+      blockNumber.toString()
+    )
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "blockTimestamp",
+      timestamp.toString()
+    )
+
+    const stored = graphStore.get("PoolInitialized", entityId)
+    assert.assertNotNull(stored)
+    assert.assertNull(
+      stored!.get("stableswapAmplification"),
+      "stableswapAmplification should not be set for concentrated pools"
+    )
+    assert.assertNull(
+      stored!.get("stableswapCenterTick"),
+      "stableswapCenterTick should not be set for concentrated pools"
+    )
+  })
+
+  test("stores stableswap pool fields", () => {
+    const poolId = Bytes.fromHexString(
+      "0x000000000000000000000000000000000000000000000000000000000000f00d"
+    ) as Bytes
+    const token0 = Address.fromString("0x5000000000000000000000000000000000000000")
+    const token1 = Address.fromString("0x6000000000000000000000000000000000000000")
+    const core = Address.fromString("0x7000000000000000000000000000000000000000")
+    const extension = Address.fromString(
+      "0x9000000000000000000000000000000000000009"
+    )
+
+    const amplification: u32 = 12
+    const centerTick: u32 = 3456
+    const typeConfig: u32 = (amplification << 24) | centerTick
+    const fee: u64 = 1500
+    const config = buildPoolConfig(extension, fee, typeConfig)
+    const tick = -42
+    const sqrtRatio = BigInt.fromI32(654321)
+    const blockNumber = BigInt.fromI32(123)
+    const timestamp = BigInt.fromI32(5678)
+
+    const event = createPoolInitializedEvent(
+      poolId,
+      token0,
+      token1,
+      config,
+      tick,
+      sqrtRatio,
+      core,
+      blockNumber,
+      timestamp
+    )
+
+    handlePoolInitialized(event)
+
+    const entityId = getEntityId(event).toHexString()
+
+    assert.entityCount("PoolInitialized", 1)
+    assert.fieldEquals("PoolInitialized", entityId, "coreAddress", core.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "poolId", poolId.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "token0", token0.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "token1", token1.toHexString())
+    assert.fieldEquals("PoolInitialized", entityId, "config", config.toHexString())
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "extension",
+      extension.toHexString()
+    )
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "fee",
+      BigInt.fromU64(fee).toString()
+    )
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "stableswapAmplification",
+      amplification.toString()
+    )
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "stableswapCenterTick",
+      centerTick.toString()
+    )
+    assert.fieldEquals("PoolInitialized", entityId, "tick", tick.toString())
+    assert.fieldEquals("PoolInitialized", entityId, "sqrtRatio", sqrtRatio.toString())
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "blockNumber",
+      blockNumber.toString()
+    )
+    assert.fieldEquals(
+      "PoolInitialized",
+      entityId,
+      "blockTimestamp",
+      timestamp.toString()
+    )
+
+    const stored = graphStore.get("PoolInitialized", entityId)
+    assert.assertNotNull(stored)
+    assert.assertNull(
+      stored!.get("tickSpacing"),
+      "tickSpacing should not be set for stableswap pools"
+    )
   })
 })
