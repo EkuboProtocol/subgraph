@@ -2,7 +2,7 @@ import {
   PoolInitialized as PoolInitializedEvent,
 } from "../generated/Core/Core"
 import {
-  PoolInitialized,
+  PoolInitialization,
 } from "../generated/schema"
 import {
   parseExtension,
@@ -11,7 +11,7 @@ import {
 } from "./pool-config"
 
 export function handlePoolInitialized(event: PoolInitializedEvent): void {
-  const entity = new PoolInitialized(
+  const entity = new PoolInitialization(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
 
