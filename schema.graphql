@@ -1,6 +1,7 @@
 type PoolInitialization @entity(immutable: true) {
   id: Bytes!
   blockNumber: BigInt!
+  blockHash: Bytes!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 
