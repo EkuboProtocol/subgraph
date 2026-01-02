@@ -1,10 +1,10 @@
 {
-  "name": "ekubo-pool-initializations-graph",
+  "name": "ekubo-v3-subgraph",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
-    "build:mainnet": "graph build --network mainnet",
-    "deploy:mainnet": "graph deploy ekubo-mainnet",
+    "build:mainnet": "cp subgraph.yaml subgraph.mainnet.yaml && graph build subgraph.mainnet.yaml --network mainnet",
+    "deploy:mainnet": "graph deploy ekubo-v3-mainnet subgraph.mainnet.yaml",
     "test": "graph test"
   },
   "dependencies": {

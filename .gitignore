@@ -1,3 +1,6 @@
+# Subgraph manifests with substituted deployment details
+/subgraph.?*.yaml
+
 # Graph CLI generated artifacts
 build/
 generated/
