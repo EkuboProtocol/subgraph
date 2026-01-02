@@ -4,12 +4,14 @@
   "scripts": {
     "codegen": "graph codegen",
     "build:mainnet": "cp subgraph.yaml subgraph.mainnet.yaml && graph build subgraph.mainnet.yaml --network mainnet",
-    "deploy:mainnet": "graph deploy ekubo-v3-mainnet subgraph.mainnet.yaml",
+    "deploy:mainnet": "graph deploy ekubo-v-3 subgraph.mainnet.yaml",
     "test": "graph test"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.98.1",
     "@graphprotocol/graph-ts": "0.37.0"
   },
-  "devDependencies": { "matchstick-as": "0.6.0" }
+  "devDependencies": {
+    "matchstick-as": "0.6.0"
+  }
 }
