@@ -3,11 +3,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
-    "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ ekubo",
-    "create-local": "graph create --node http://localhost:8020/ ekubo",
-    "remove-local": "graph remove --node http://localhost:8020/ ekubo",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ekubo",
+    "build:mainnet": "graph build --network mainnet",
+    "deploy:mainnet": "graph deploy ekubo-mainnet",
     "test": "graph test"
   },
   "dependencies": {

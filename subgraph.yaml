@@ -8,6 +8,8 @@ dataSources:
     name: Core
     source:
       abi: Core
+      # Can't put the shared address here because graph build --network xyz will just overwrite it
+      # with the (potentially non-existing) `address` property in networks.json
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
