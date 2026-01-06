@@ -5,6 +5,8 @@
     "codegen": "graph codegen",
     "build:mainnet": "cp subgraph.yaml subgraph.mainnet.yaml && graph build subgraph.mainnet.yaml --network mainnet",
     "deploy:mainnet": "graph deploy ekubo-v-3 subgraph.mainnet.yaml",
+    "build:arbitrum": "cp subgraph.yaml subgraph.arbitrum.yaml && graph build subgraph.arbitrum.yaml --network arbitrum",
+    "deploy:arbitrum": "graph deploy ekubo-v-3-arbitrum subgraph.arbitrum.yaml --network arbitrum",
     "test": "graph test"
   },
   "dependencies": {

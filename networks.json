@@ -4,5 +4,11 @@
       "startBlock": 24134507,
       "address": "0x00000000000014aA86C5d3c41765bb24e11bd701"
     }
+  },
+  "arbitrum": {
+    "Core": {
+      "startBlock": 416469410,
+      "address": "0x00000000000014aA86C5d3c41765bb24e11bd701"
+    }
   }
 }
