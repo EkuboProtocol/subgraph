@@ -5,7 +5,7 @@
       "address": "0x00000000000014aA86C5d3c41765bb24e11bd701"
     }
   },
-  "arbitrum": {
+  "arbitrum-one": {
     "Core": {
       "startBlock": 416469410,
       "address": "0x00000000000014aA86C5d3c41765bb24e11bd701"
