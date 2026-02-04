@@ -37,7 +37,9 @@ export function handlePoolInitialized(event: PoolInitializedEvent): void {
     entity.tickSpacing = raw & 0x7fffffff
   } else {
     entity.stableswapAmplification = (raw >> 24) as u8
-    entity.stableswapCenterTick = raw & 0x00ffffff
+    const low24 = raw & 0x00ffffff
+    const signed24 = (low24 & 0x00800000) != 0 ? low24 - 0x01000000 : low24
+    entity.stableswapCenterTick = signed24 * 16
   }
 
   entity.tick = event.params.tick
