@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -20,9 +20,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Patch graph test Docker TTY flag for CI
-        run: |
-          sed -i "s/'-it'/'-i'/" node_modules/@graphprotocol/graph-cli/dist/commands/test.js
+      - name: Run codegen
+        run: bun run codegen
 
-      - name: Run tests in Docker
-        run: bun run test -- -d
+      - name: Run tests
+        run: bun run test
