@@ -27,10 +27,11 @@ export function handlePoolInitialized(event: PoolInitializedEvent): void {
   entity.coreAddress = event.address;
   entity.poolId = event.params.poolId;
 
-  const { token0, token1, config } = event.params.poolKey;
+  const pk = event.params.poolKey;
+  const config = pk.config;
 
-  entity.token0 = token0;
-  entity.token1 = token1;
+  entity.token0 = pk.token0;
+  entity.token1 = pk.token1;
   entity.config = config;
 
   entity.extension = parseExtension(config);
