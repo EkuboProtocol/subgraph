@@ -159,6 +159,52 @@ describe("handlePoolInitialized", () => {
     );
   });
 
+  test("packs id as blockNumber + transactionIndex + eventIndex", () => {
+    const poolId = Bytes.fromHexString(
+      "0x000000000000000000000000000000000000000000000000000000000000beef",
+    ) as Bytes;
+    const token0 = Address.fromString(
+      "0x1111111111111111111111111111111111111111",
+    );
+    const token1 = Address.fromString(
+      "0x2222222222222222222222222222222222222222",
+    );
+    const core = Address.fromString(
+      "0x3333333333333333333333333333333333333333",
+    );
+    const extension = Address.fromString(
+      "0x4444444444444444444444444444444444444444",
+    );
+
+    const tickSpacing: u32 = 10;
+    const typeConfig: u32 = 0x80000000 | tickSpacing;
+    const fee: u64 = 42;
+    const config = buildPoolConfig(extension, fee, typeConfig);
+    const tick = 1;
+    const sqrtRatio = BigInt.fromI32(2);
+    const blockNumber = BigInt.fromI32(500);
+    const timestamp = BigInt.fromI32(9);
+
+    const event = createPoolInitializedEvent(
+      poolId,
+      token0,
+      token1,
+      config,
+      tick,
+      sqrtRatio,
+      core,
+      blockNumber,
+      timestamp,
+    );
+
+    handlePoolInitialized(event);
+
+    const entityId = poolInitializationId(event).toHexString();
+    const expectedId = "0x00000000000001f40000000700000003";
+
+    assert.stringEquals(entityId, expectedId);
+  });
+
   test("stores stableswap pool fields", () => {
     const poolId = Bytes.fromHexString(
       "0x000000000000000000000000000000000000000000000000000000000000f00d",
