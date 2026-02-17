@@ -12,7 +12,12 @@ import {
   store as graphStore,
 } from "@graphprotocol/graph-ts";
 import { handlePoolInitialized, poolInitializationId } from "../src/core";
-import { buildPoolConfig, createPoolInitializedEvent } from "./helpers";
+import {
+  buildPoolConfig,
+  createPoolInitializedEvent,
+  DEFAULT_EVENT_INDEX,
+  DEFAULT_TX_INDEX,
+} from "./helpers";
 
 describe("handlePoolInitialized", () => {
   afterEach(() => {
@@ -123,8 +128,18 @@ describe("handlePoolInitialized", () => {
       "blockNumber",
       blockNumber.toString(),
     );
-    assert.fieldEquals("PoolInitialization", entityId, "transactionIndex", "0");
-    assert.fieldEquals("PoolInitialization", entityId, "eventIndex", "0");
+    assert.fieldEquals(
+      "PoolInitialization",
+      entityId,
+      "transactionIndex",
+      DEFAULT_TX_INDEX.toString(),
+    );
+    assert.fieldEquals(
+      "PoolInitialization",
+      entityId,
+      "eventIndex",
+      DEFAULT_EVENT_INDEX.toString(),
+    );
     assert.fieldEquals(
       "PoolInitialization",
       entityId,
@@ -162,8 +177,8 @@ describe("handlePoolInitialized", () => {
     );
 
     const amplification: u32 = 12;
-    const centerTick: u32 = 3456;
-    const typeConfig: u32 = (amplification << 24) | centerTick;
+    const centerTickCompressed: u32 = 3456;
+    const typeConfig: u32 = (amplification << 24) | centerTickCompressed;
     const fee: u64 = 1500;
     const config = buildPoolConfig(extension, fee, typeConfig);
     const tick = -42;
@@ -240,7 +255,7 @@ describe("handlePoolInitialized", () => {
       "PoolInitialization",
       entityId,
       "stableswapCenterTick",
-      centerTick.toString(),
+      (centerTickCompressed * 16).toString(),
     );
     assert.fieldEquals("PoolInitialization", entityId, "tick", tick.toString());
     assert.fieldEquals(
@@ -255,8 +270,18 @@ describe("handlePoolInitialized", () => {
       "blockNumber",
       blockNumber.toString(),
     );
-    assert.fieldEquals("PoolInitialization", entityId, "transactionIndex", "0");
-    assert.fieldEquals("PoolInitialization", entityId, "eventIndex", "0");
+    assert.fieldEquals(
+      "PoolInitialization",
+      entityId,
+      "transactionIndex",
+      DEFAULT_TX_INDEX.toString(),
+    );
+    assert.fieldEquals(
+      "PoolInitialization",
+      entityId,
+      "eventIndex",
+      DEFAULT_EVENT_INDEX.toString(),
+    );
     assert.fieldEquals(
       "PoolInitialization",
       entityId,

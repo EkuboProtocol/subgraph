@@ -11,6 +11,8 @@ import { PoolInitialized as PoolInitializedEvent } from "../generated/Core/Core"
 const DEFAULT_TX_HASH = Bytes.fromHexString(
   "0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
 ) as Bytes;
+export const DEFAULT_TX_INDEX = BigInt.fromI32(7);
+export const DEFAULT_EVENT_INDEX = BigInt.fromI32(3);
 
 export function buildPoolConfig(
   extension: Address,
@@ -80,7 +82,8 @@ export function createPoolInitializedEvent(
   event.block.number = blockNumber;
   event.block.timestamp = blockTimestamp;
   event.transaction.hash = txHash;
-  event.logIndex = BigInt.zero();
+  event.transaction.index = DEFAULT_TX_INDEX;
+  event.logIndex = DEFAULT_EVENT_INDEX;
 
   return event;
 }
