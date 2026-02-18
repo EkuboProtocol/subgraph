@@ -50,64 +50,41 @@ const DEFAULT_BLOCK_NUMBER = BigInt.fromI32(99);
 const DEFAULT_TIMESTAMP = BigInt.fromI32(1234);
 
 class EventOverrides {
-  poolId: Bytes | null = null;
-  token0: Address | null = null;
-  token1: Address | null = null;
-  core: Address | null = null;
-  extension: Address | null = null;
-  fee: BigInt | null = null;
-  typeConfig: BigInt | null = null;
-  tick: BigInt | null = null;
-  sqrtRatio: BigInt | null = null;
-  blockNumber: BigInt | null = null;
-  timestamp: BigInt | null = null;
-  txHash: Bytes | null = null;
-  txIndex: BigInt | null = null;
-  logIndex: BigInt | null = null;
+  poolId: Bytes = DEFAULT_POOL_ID;
+  token0: Address = DEFAULT_TOKEN0;
+  token1: Address = DEFAULT_TOKEN1;
+  core: Address = DEFAULT_CORE;
+  extension: Address = DEFAULT_EXTENSION;
+  fee: BigInt = BigInt.fromU64(DEFAULT_FEE);
+  typeConfig: BigInt = BigInt.fromU32(DEFAULT_TYPE_CONFIG);
+  tick: BigInt = BigInt.fromI32(DEFAULT_TICK);
+  sqrtRatio: BigInt = DEFAULT_SQRT_RATIO;
+  blockNumber: BigInt = DEFAULT_BLOCK_NUMBER;
+  timestamp: BigInt = DEFAULT_TIMESTAMP;
+  txHash: Bytes = DEFAULT_TX_HASH;
+  txIndex: BigInt = DEFAULT_TX_INDEX;
+  logIndex: BigInt = DEFAULT_EVENT_INDEX;
 }
 
 function createPoolInitializedEvent(
-  overrides: EventOverrides | null = null,
+  overrides: EventOverrides = new EventOverrides(),
 ): PoolInitializedEvent {
-  let poolId = DEFAULT_POOL_ID;
-  let token0 = DEFAULT_TOKEN0;
-  let token1 = DEFAULT_TOKEN1;
-  let core = DEFAULT_CORE;
-  let extension = DEFAULT_EXTENSION;
+  const poolId = overrides.poolId;
+  const token0 = overrides.token0;
+  const token1 = overrides.token1;
+  const core = overrides.core;
+  const extension = overrides.extension;
 
-  let fee = DEFAULT_FEE;
-  let typeConfig = DEFAULT_TYPE_CONFIG;
+  const fee = overrides.fee.toU64();
+  const typeConfig = overrides.typeConfig.toU32();
 
-  let tick = DEFAULT_TICK;
-  let sqrtRatio = DEFAULT_SQRT_RATIO;
-  let blockNumber = DEFAULT_BLOCK_NUMBER;
-  let timestamp = DEFAULT_TIMESTAMP;
-  let txHash = DEFAULT_TX_HASH;
-  let txIndex = DEFAULT_TX_INDEX;
-  let logIndex = DEFAULT_EVENT_INDEX;
-
-  if (overrides != null) {
-    if (overrides.poolId != null) poolId = overrides.poolId as Bytes;
-    if (overrides.token0 != null) token0 = overrides.token0 as Address;
-    if (overrides.token1 != null) token1 = overrides.token1 as Address;
-    if (overrides.core != null) core = overrides.core as Address;
-    if (overrides.extension != null) extension = overrides.extension as Address;
-
-    if (overrides.fee != null) fee = (overrides.fee as BigInt).toU64();
-    if (overrides.typeConfig != null) {
-      typeConfig = (overrides.typeConfig as BigInt).toU32();
-    }
-
-    if (overrides.tick != null) tick = (overrides.tick as BigInt).toI32();
-    if (overrides.sqrtRatio != null) sqrtRatio = overrides.sqrtRatio as BigInt;
-    if (overrides.blockNumber != null) {
-      blockNumber = overrides.blockNumber as BigInt;
-    }
-    if (overrides.timestamp != null) timestamp = overrides.timestamp as BigInt;
-    if (overrides.txHash != null) txHash = overrides.txHash as Bytes;
-    if (overrides.txIndex != null) txIndex = overrides.txIndex as BigInt;
-    if (overrides.logIndex != null) logIndex = overrides.logIndex as BigInt;
-  }
+  const tick = overrides.tick.toI32();
+  const sqrtRatio = overrides.sqrtRatio;
+  const blockNumber = overrides.blockNumber;
+  const timestamp = overrides.timestamp;
+  const txHash = overrides.txHash;
+  const txIndex = overrides.txIndex;
+  const logIndex = overrides.logIndex;
 
   const config = new Uint8Array(32);
   const extensionBytes = extension as Bytes;
