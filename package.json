@@ -8,15 +8,17 @@
     "build:arbitrum-one": "cp subgraph.yaml subgraph.arbitrum-one.yaml && graph build subgraph.arbitrum-one.yaml --network arbitrum-one",
     "deploy:arbitrum-one": "graph deploy ekubo-v3-arbitrum-one subgraph.arbitrum-one.yaml --network arbitrum-one",
     "test": "graph test",
-    "lint": "eslint ."
+    "lint": "oxlint --max-warnings=0",
+    "fix": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.98.1",
     "@graphprotocol/graph-ts": "0.37.0"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "8.68.0",
-    "eslint": "10.9.1",
-    "matchstick-as": "0.6.0"
+    "matchstick-as": "0.6.0",
+    "oxfmt": "0.73.0",
+    "oxlint": "1.88.0"
   }
 }

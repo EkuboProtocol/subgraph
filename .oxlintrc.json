@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "options": {
+    "reportUnusedDisableDirectives": "error"
+  },
+  "plugins": [],
+  "categories": {
+    "correctness": "off"
+  },
+  "env": {
+    "builtin": true,
+    "es2026": true
+  },
+  "ignorePatterns": [
+    "build/**",
+    "generated/**",
+    "tests/.bin/**",
+    "tests/.docker/**"
+  ],
+  "rules": {
+    "complexity": ["error", 10]
+  }
+}
