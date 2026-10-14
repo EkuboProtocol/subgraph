@@ -115,7 +115,9 @@ function createPoolInitializedEvent(
   event.parameters.push(
     new ethereum.EventParam("poolKey", ethereum.Value.fromTuple(poolKey)),
   );
-  event.parameters.push(new ethereum.EventParam("tick", ethereum.Value.fromI32(tick)));
+  event.parameters.push(
+    new ethereum.EventParam("tick", ethereum.Value.fromI32(tick)),
+  );
   event.parameters.push(
     new ethereum.EventParam(
       "sqrtRatio",
@@ -135,13 +137,28 @@ function createPoolInitializedEvent(
 
 function assertCommonFields(entityId: string, config: Bytes): void {
   assert.entityCount(ENTITY, 1);
-  assert.fieldEquals(ENTITY, entityId, "coreAddress", DEFAULT_CORE.toHexString());
+  assert.fieldEquals(
+    ENTITY,
+    entityId,
+    "coreAddress",
+    DEFAULT_CORE.toHexString(),
+  );
   assert.fieldEquals(ENTITY, entityId, "poolId", DEFAULT_POOL_ID.toHexString());
   assert.fieldEquals(ENTITY, entityId, "token0", DEFAULT_TOKEN0.toHexString());
   assert.fieldEquals(ENTITY, entityId, "token1", DEFAULT_TOKEN1.toHexString());
   assert.fieldEquals(ENTITY, entityId, "config", config.toHexString());
-  assert.fieldEquals(ENTITY, entityId, "extension", DEFAULT_EXTENSION.toHexString());
-  assert.fieldEquals(ENTITY, entityId, "fee", BigInt.fromU64(DEFAULT_FEE).toString());
+  assert.fieldEquals(
+    ENTITY,
+    entityId,
+    "extension",
+    DEFAULT_EXTENSION.toHexString(),
+  );
+  assert.fieldEquals(
+    ENTITY,
+    entityId,
+    "fee",
+    BigInt.fromU64(DEFAULT_FEE).toString(),
+  );
   assert.fieldEquals(
     ENTITY,
     entityId,
@@ -225,7 +242,9 @@ describe("handlePoolInitialized", () => {
     const centerTickCompressed: u32 = 3456;
 
     const overrides = new EventOverrides();
-    overrides.typeConfig = BigInt.fromU32((amplification << 24) | centerTickCompressed);
+    overrides.typeConfig = BigInt.fromU32(
+      (amplification << 24) | centerTickCompressed,
+    );
 
     const event = createPoolInitializedEvent(overrides);
     const config = event.params.poolKey.config;

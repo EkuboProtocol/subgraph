@@ -1,0 +1,46 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Format, lint and tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun ci
+
+      # Every step runs even when an earlier one fails, so one push reports
+      # every kind of problem at once.
+      - name: Format
+        run: bun run format:check
+
+      - name: Lint
+        if: ${{ !cancelled() }}
+        run: bun run lint
+
+      - name: Codegen
+        if: ${{ !cancelled() }}
+        run: bun run codegen
+
+      # graph test compiles the mappings and tests with the AssemblyScript
+      # compiler, which is the type check for this repository.
+      - name: Tests
+        if: ${{ !cancelled() }}
+        run: bun run test
