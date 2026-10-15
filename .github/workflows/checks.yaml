@@ -26,18 +26,18 @@ jobs:
 
       - run: bun ci
 
+      # Format and lint ignore generated/, so they run while codegen writes it.
       # Every step runs even when an earlier one fails, so one push reports
       # every kind of problem at once.
-      - name: Format
-        run: bun run format:check
+      - parallel:
+          - name: Format
+            run: bun run format:check
 
-      - name: Lint
-        if: ${{ !cancelled() }}
-        run: bun run lint
+          - name: Lint
+            run: bun run lint
 
-      - name: Codegen
-        if: ${{ !cancelled() }}
-        run: bun run codegen
+          - name: Codegen
+            run: bun run codegen
 
       # graph test compiles the mappings and tests with the AssemblyScript
       # compiler, which is the type check for this repository.
