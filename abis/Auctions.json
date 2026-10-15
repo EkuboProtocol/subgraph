@@ -1,0 +1,207 @@
+[
+  {
+    "type": "event",
+    "name": "AuctionCompleted",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "auctionKey",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct AuctionKey",
+        "components": [
+          {
+            "name": "token0",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token1",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "config",
+            "type": "bytes32",
+            "internalType": "AuctionConfig"
+          }
+        ]
+      },
+      {
+        "name": "creatorAmount",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      },
+      {
+        "name": "boostAmount",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AuctionFundsAdded",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "auctionKey",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct AuctionKey",
+        "components": [
+          {
+            "name": "token0",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token1",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "config",
+            "type": "bytes32",
+            "internalType": "AuctionConfig"
+          }
+        ]
+      },
+      {
+        "name": "saleRate",
+        "type": "uint112",
+        "indexed": false,
+        "internalType": "uint112"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "BoostStarted",
+    "inputs": [
+      {
+        "name": "auctionKey",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct AuctionKey",
+        "components": [
+          {
+            "name": "token0",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token1",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "config",
+            "type": "bytes32",
+            "internalType": "AuctionConfig"
+          }
+        ]
+      },
+      {
+        "name": "boostRate",
+        "type": "uint112",
+        "indexed": false,
+        "internalType": "uint112"
+      },
+      {
+        "name": "boostEndTime",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CreatorProceedsCollected",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "auctionKey",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct AuctionKey",
+        "components": [
+          {
+            "name": "token0",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token1",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "config",
+            "type": "bytes32",
+            "internalType": "AuctionConfig"
+          }
+        ]
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Transfer",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  }
+]

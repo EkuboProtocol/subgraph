@@ -26,3 +26,11 @@ request and on every push to `main`.
   If a disable really is the right call (a table-driven or numeric routine where the
   branches are the point), put the reason on the line above it. An unused disable
   directive is itself an error.
+
+## Mapping Pitfalls
+
+- Never build module-level values with host calls (`Address.fromString()`,
+  `BigInt.fromString()` and similar). Those initializers run before the
+  AssemblyScript allocator is set up, graph-node writes the result over the
+  module's static data, and every handler of the data source then fails in
+  graph-node even though matchstick passes. Use string or numeric constants.

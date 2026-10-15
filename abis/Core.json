@@ -1,6 +1,44 @@
 [
   {
     "type": "event",
+    "name": "ExtensionRegistered",
+    "inputs": [
+      {
+        "name": "extension",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FeesAccumulated",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "PoolId"
+      },
+      {
+        "name": "amount0",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      },
+      {
+        "name": "amount1",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "PoolInitialized",
     "inputs": [
       {
@@ -43,6 +81,86 @@
         "type": "uint96",
         "indexed": false,
         "internalType": "SqrtRatio"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PositionFeesCollected",
+    "inputs": [
+      {
+        "name": "locker",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "PoolId"
+      },
+      {
+        "name": "positionId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "PositionId"
+      },
+      {
+        "name": "amount0",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      },
+      {
+        "name": "amount1",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PositionUpdated",
+    "inputs": [
+      {
+        "name": "locker",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "PoolId"
+      },
+      {
+        "name": "positionId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "PositionId"
+      },
+      {
+        "name": "liquidityDelta",
+        "type": "int128",
+        "indexed": false,
+        "internalType": "int128"
+      },
+      {
+        "name": "balanceUpdate",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "PoolBalanceUpdate"
+      },
+      {
+        "name": "stateAfter",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "PoolState"
       }
     ],
     "anonymous": false

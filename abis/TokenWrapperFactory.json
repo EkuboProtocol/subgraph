@@ -1,0 +1,27 @@
+[
+  {
+    "type": "event",
+    "name": "TokenWrapperDeployed",
+    "inputs": [
+      {
+        "name": "underlyingToken",
+        "type": "address",
+        "indexed": false,
+        "internalType": "contract IERC20"
+      },
+      {
+        "name": "unlockTime",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenWrapper",
+        "type": "address",
+        "indexed": false,
+        "internalType": "contract TokenWrapper"
+      }
+    ],
+    "anonymous": false
+  }
+]
