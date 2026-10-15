@@ -55,3 +55,7 @@ cargo test
 count of the same range on Dune, including the one transaction in that range
 that the subgraph cannot reach. Decoder tests compare against values from the
 parsers of the Ekubo indexer.
+
+## License
+
+MIT. See `LICENSE`.
