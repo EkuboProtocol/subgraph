@@ -3,10 +3,9 @@ package:
   name: ekubo_v3
   version: v0.1.0
   url: https://github.com/EkuboProtocol/subgraph/tree/main/substreams
-  doc: |
-    Every log emitted by the Ekubo v3 contracts, decoded, in chain order. This
-    includes the logs without topics that subgraphs cannot see: swaps, oracle
-    snapshots, TWAMM virtual order executions and BoostedFees donations.
+  description: Every log of the Ekubo v3 contracts on Ethereum and Arbitrum One, decoded, in chain order, including swaps and the other logs without topics.
+  doc: ./README.md
+  image: ./ekubo.png
 
 imports:
   ethereum_common: https://github.com/streamingfast/substreams-foundational-modules/releases/download/ethereum-common-v0.3.3/ethereum-common-v0.3.3.spkg

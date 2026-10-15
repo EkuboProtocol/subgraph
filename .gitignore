@@ -40,3 +40,5 @@ cache
 # Substreams build output
 substreams/target/
 substreams/*.spkg
+substreams/.substreams.env
+.substreams.env
