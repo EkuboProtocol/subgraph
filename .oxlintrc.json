@@ -15,7 +15,9 @@
     "build/**",
     "generated/**",
     "tests/.bin/**",
-    "tests/.docker/**"
+    "tests/.docker/**",
+    "substreams/target/**",
+    "substreams/tests/fixtures/**"
   ],
   "rules": {
     "complexity": ["error", 10]

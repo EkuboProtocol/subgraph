@@ -1,0 +1,37 @@
+//! The Ekubo v3 contracts. They are deployed with CREATE2 at the same address on
+//! every chain this package supports.
+
+use hex_literal::hex;
+
+pub const CORE: [u8; 20] = hex!("00000000000014aA86C5d3c41765bb24e11bd701");
+pub const ORACLE: [u8; 20] = hex!("517E506700271AEa091b02f42756F5E174Af5230");
+pub const LEGACY_TWAMM: [u8; 20] = hex!("d4F1060cB9c1A13e1d2d20379b8aa2cF7541eD9b");
+pub const TWAMM: [u8; 20] = hex!("d47f1B1eDCfEaBb08F6eBd8FC337c27E636C75BA");
+pub const BOOSTED_FEES_CONCENTRATED: [u8; 20] = hex!("d4B54d0ca6979Da05F25895E6e269E678ba00f9e");
+pub const BOOSTED_FEES_STABLESWAP: [u8; 20] = hex!("948b9C2C99718034954110cB61a6e08e107745f9");
+pub const POSITIONS: [u8; 20] = hex!("02D9876A21AF7545f8632C3af76eC90b5ad4b66D");
+pub const RECOMPILED_POSITIONS: [u8; 20] = hex!("A2971E0C37cFdb13aE8440A0C94Ef1A1af39e326");
+pub const LEGACY_ORDERS: [u8; 20] = hex!("fF6cF0Ca6d7a30a60539AcD4bB20B3df84EA0644");
+pub const ORDERS: [u8; 20] = hex!("3325428adB409c239E88ca472F50b0efe00E98B4");
+pub const RECOMPILED_ORDERS: [u8; 20] = hex!("9bB520B6192F71ec3D015C8a74F914f9c94bF794");
+pub const AUCTIONS: [u8; 20] = hex!("cB4e1b5Fb7b120dB0815aFA63453C969136C0Ec9");
+pub const INCENTIVES: [u8; 20] = hex!("C52D2656cb8C634263E6A15469588beB9C3Bb738");
+pub const TOKEN_WRAPPER_FACTORY: [u8; 20] = hex!("AA166592922C4020cEfA23448054AD070211790a");
+
+/// Every contract whose logs this package decodes.
+pub const ALL: [[u8; 20]; 14] = [
+    CORE,
+    ORACLE,
+    LEGACY_TWAMM,
+    TWAMM,
+    BOOSTED_FEES_CONCENTRATED,
+    BOOSTED_FEES_STABLESWAP,
+    POSITIONS,
+    RECOMPILED_POSITIONS,
+    LEGACY_ORDERS,
+    ORDERS,
+    RECOMPILED_ORDERS,
+    AUCTIONS,
+    INCENTIVES,
+    TOKEN_WRAPPER_FACTORY,
+];

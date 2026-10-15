@@ -1,0 +1,29 @@
+[package]
+name = "ekubo-v3-substreams"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+buffa = { version = "0.9", default-features = false, features = ["std"] }
+hex-literal = "0.4"
+num-bigint = "0.4"
+substreams = "0.8"
+substreams-ethereum = "0.12"
+tiny-keccak = { version = "2", features = ["keccak"] }
+
+[build-dependencies]
+buffa-build = "0.9"
+
+[profile.release]
+lto = true
+opt-level = "s"
+strip = "debuginfo"
+
+[dev-dependencies]
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

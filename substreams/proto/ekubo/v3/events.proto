@@ -1,0 +1,242 @@
+syntax = "proto3";
+
+// Every log emitted by the Ekubo v3 contracts in a block, decoded, in log order.
+// Integers that can exceed 64 bits are decimal strings. Addresses, pool ids and
+// other fixed-size byte values are raw bytes.
+package ekubo.v3;
+
+message Events {
+  repeated Event events = 1;
+}
+
+message Event {
+  uint64 block_number = 1;
+  bytes block_hash = 2;
+  uint64 block_timestamp = 3;
+  bytes transaction_hash = 4;
+  uint32 transaction_index = 5;
+  bytes transaction_from = 6;
+  // Index of the log within the block. Ordering by (block_number, log_index)
+  // is chain order.
+  uint32 log_index = 7;
+  bytes emitter = 8;
+
+  oneof payload {
+    // Core
+    PoolInitialized pool_initialized = 10;
+    Swapped swapped = 11;
+    PositionUpdated position_updated = 12;
+    PositionFeesCollected position_fees_collected = 13;
+    FeesAccumulated fees_accumulated = 14;
+    ExtensionRegistered extension_registered = 15;
+    // Oracle
+    OracleSnapshot oracle_snapshot = 20;
+    // TWAMM
+    OrderUpdated order_updated = 30;
+    OrderProceedsWithdrawn order_proceeds_withdrawn = 31;
+    VirtualOrdersExecuted virtual_orders_executed = 32;
+    // BoostedFees
+    PoolBoosted pool_boosted = 40;
+    FeesDonated fees_donated = 41;
+    // Positions, Orders and Auctions
+    NonfungibleTokenTransfer nonfungible_token_transfer = 50;
+    // Auctions
+    AuctionCompleted auction_completed = 60;
+    AuctionFundsAdded auction_funds_added = 61;
+    AuctionBoostStarted auction_boost_started = 62;
+    CreatorProceedsCollected creator_proceeds_collected = 63;
+    // Incentives
+    IncentivesFunded incentives_funded = 70;
+    IncentivesRefunded incentives_refunded = 71;
+    // TokenWrapperFactory
+    TokenWrapperDeployed token_wrapper_deployed = 80;
+  }
+}
+
+message PoolKey {
+  bytes token0 = 1;
+  bytes token1 = 2;
+  bytes config = 3;
+  bytes extension = 4;
+  // A fraction of 2**64.
+  uint64 fee = 5;
+  // Set for concentrated liquidity pools.
+  optional uint32 tick_spacing = 6;
+  // Set for stableswap pools.
+  optional uint32 stableswap_amplification = 7;
+  optional int32 stableswap_center_tick = 8;
+}
+
+message PoolInitialized {
+  bytes pool_id = 1;
+  PoolKey pool_key = 2;
+  int32 tick = 3;
+  // Fixed point 64.128.
+  string sqrt_ratio = 4;
+}
+
+// Logged without topics.
+message Swapped {
+  bytes locker = 1;
+  bytes pool_id = 2;
+  // Positive when the pool receives the token.
+  string delta0 = 3;
+  string delta1 = 4;
+  string liquidity_after = 5;
+  // Fixed point 64.128.
+  string sqrt_ratio_after = 6;
+  int32 tick_after = 7;
+}
+
+message PositionUpdated {
+  bytes locker = 1;
+  bytes pool_id = 2;
+  bytes position_id = 3;
+  string salt = 4;
+  int32 lower_tick = 5;
+  int32 upper_tick = 6;
+  string liquidity_delta = 7;
+  string delta0 = 8;
+  string delta1 = 9;
+  // Pool state after the update.
+  string liquidity_after = 10;
+  string sqrt_ratio_after = 11;
+  int32 tick_after = 12;
+}
+
+message PositionFeesCollected {
+  bytes locker = 1;
+  bytes pool_id = 2;
+  bytes position_id = 3;
+  string salt = 4;
+  int32 lower_tick = 5;
+  int32 upper_tick = 6;
+  string amount0 = 7;
+  string amount1 = 8;
+}
+
+message FeesAccumulated {
+  bytes pool_id = 1;
+  string amount0 = 2;
+  string amount1 = 3;
+}
+
+message ExtensionRegistered {
+  bytes extension = 1;
+}
+
+// Logged without topics. Oracle pools pair the native token with `token`.
+message OracleSnapshot {
+  bytes token = 1;
+  uint64 timestamp = 2;
+  string seconds_per_liquidity_cumulative = 3;
+  int64 tick_cumulative = 4;
+}
+
+message OrderKey {
+  bytes token0 = 1;
+  bytes token1 = 2;
+  bytes config = 3;
+  uint64 fee = 4;
+  bool is_selling_token1 = 5;
+  bytes sell_token = 6;
+  bytes buy_token = 7;
+  uint64 start_time = 8;
+  uint64 end_time = 9;
+  // The TWAMM pool the order trades in.
+  bytes pool_id = 10;
+}
+
+message OrderUpdated {
+  bytes owner = 1;
+  bytes salt = 2;
+  OrderKey order_key = 3;
+  string sale_rate_delta = 4;
+}
+
+message OrderProceedsWithdrawn {
+  bytes owner = 1;
+  bytes salt = 2;
+  OrderKey order_key = 3;
+  string amount = 4;
+}
+
+// Logged without topics.
+message VirtualOrdersExecuted {
+  bytes pool_id = 1;
+  string sale_rate_token0 = 2;
+  string sale_rate_token1 = 3;
+}
+
+message PoolBoosted {
+  bytes pool_id = 1;
+  uint64 start_time = 2;
+  uint64 end_time = 3;
+  string rate0 = 4;
+  string rate1 = 5;
+}
+
+// Logged without topics.
+message FeesDonated {
+  bytes pool_id = 1;
+  string donate_rate0 = 2;
+  string donate_rate1 = 3;
+}
+
+message NonfungibleTokenTransfer {
+  bytes from = 1;
+  bytes to = 2;
+  string token_id = 3;
+}
+
+message AuctionKey {
+  bytes token0 = 1;
+  bytes token1 = 2;
+  bytes config = 3;
+}
+
+message AuctionCompleted {
+  string token_id = 1;
+  AuctionKey auction_key = 2;
+  string creator_amount = 3;
+  string boost_amount = 4;
+}
+
+message AuctionFundsAdded {
+  string token_id = 1;
+  AuctionKey auction_key = 2;
+  string sale_rate = 3;
+}
+
+message AuctionBoostStarted {
+  AuctionKey auction_key = 1;
+  string boost_rate = 2;
+  uint64 boost_end_time = 3;
+}
+
+message CreatorProceedsCollected {
+  string token_id = 1;
+  AuctionKey auction_key = 2;
+  bytes recipient = 3;
+  string amount = 4;
+}
+
+message IncentivesFunded {
+  bytes owner = 1;
+  bytes token = 2;
+  bytes root = 3;
+  string amount_next = 4;
+}
+
+message IncentivesRefunded {
+  bytes owner = 1;
+  bytes token = 2;
+  bytes root = 3;
+  string refund_amount = 4;
+}
+
+message TokenWrapperDeployed {
+  bytes underlying_token = 1;
+  string unlock_time = 2;
+  bytes token_wrapper = 3;
+}

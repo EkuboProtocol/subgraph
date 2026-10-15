@@ -43,8 +43,9 @@ A transaction that does neither is missed. Over 14 days of chain data this was
 logs, mostly bots executing TWAMM orders and swapping through native token
 pools) and none on Arbitrum. The next captured swap in a pool carries the pool's
 price, tick and liquidity, so pool state recovers, but swap volume and TWAMM
-execution history on Ethereum are short by that amount. Use the Ekubo indexer
-where every swap is needed.
+execution history on Ethereum are short by that amount. Where every swap is
+needed, use the Substreams package in `substreams/`, which reads every log, or
+the Ekubo indexer.
 
 ## Development
 
