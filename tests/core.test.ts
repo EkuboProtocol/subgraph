@@ -8,115 +8,62 @@ import {
 import {
   Address,
   BigInt,
-  ByteArray,
   Bytes,
   ethereum,
-  store as graphStore,
+  store,
 } from "@graphprotocol/graph-ts";
 import { newMockEvent } from "matchstick-as";
-import { PoolInitialized as PoolInitializedEvent } from "../generated/Core/Core";
-import { handlePoolInitialized, poolInitializationId } from "../src/core";
+import {
+  ExtensionRegistered as ExtensionRegisteredEvent,
+  PoolInitialized as PoolInitializedEvent,
+  PositionFeesCollected as PositionFeesCollectedEvent,
+  PositionUpdated as PositionUpdatedEvent,
+} from "../generated/Core/Core";
+import {
+  handleExtensionRegistered,
+  handlePoolInitialized,
+  handlePositionFeesCollected,
+  handlePositionUpdated,
+} from "../src/core";
+import { eventFromData, eventId } from "./utils";
 
-const ENTITY = "PoolInitialization";
+const CORE = "0x00000000000014aa86c5d3c41765bb24e11bd701";
+const TOKEN0 = "0x2000000000000000000000000000000000000000";
+const TOKEN1 = "0x3000000000000000000000000000000000000000";
+const POOL_ID =
+  "0x000000000000000000000000000000000000000000000000000000000000c0de";
 
-const DEFAULT_TX_HASH = Bytes.fromHexString(
-  "0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
-) as Bytes;
-const DEFAULT_TX_INDEX = BigInt.fromI32(7);
-const DEFAULT_EVENT_INDEX = BigInt.fromI32(3);
-
-const DEFAULT_POOL_ID = Bytes.fromHexString(
-  "0x000000000000000000000000000000000000000000000000000000000000c0de",
-) as Bytes;
-const DEFAULT_TOKEN0 = Address.fromString(
-  "0x2000000000000000000000000000000000000000",
-);
-const DEFAULT_TOKEN1 = Address.fromString(
-  "0x3000000000000000000000000000000000000000",
-);
-const DEFAULT_CORE = Address.fromString(
-  "0x4000000000000000000000000000000000000000",
-);
-const DEFAULT_EXTENSION = Address.fromString(
-  "0x1000000000000000000000000000000000000001",
-);
-
-const DEFAULT_FEE: u64 = 3000;
-const DEFAULT_TICK_SPACING: u32 = 60;
-const DEFAULT_TYPE_CONFIG: u32 = 0x80000000 | DEFAULT_TICK_SPACING;
-const DEFAULT_TICK = 15;
-const DEFAULT_SQRT_RATIO = BigInt.fromI32(123456);
-const DEFAULT_BLOCK_NUMBER = BigInt.fromI32(99);
-const DEFAULT_TIMESTAMP = BigInt.fromI32(1234);
-
-class EventOverrides {
-  poolId: Bytes = DEFAULT_POOL_ID;
-  token0: Address = DEFAULT_TOKEN0;
-  token1: Address = DEFAULT_TOKEN1;
-  core: Address = DEFAULT_CORE;
-  extension: Address = DEFAULT_EXTENSION;
-  fee: BigInt = BigInt.fromU64(DEFAULT_FEE);
-  typeConfig: BigInt = BigInt.fromU32(DEFAULT_TYPE_CONFIG);
-  tick: BigInt = BigInt.fromI32(DEFAULT_TICK);
-  sqrtRatio: BigInt = DEFAULT_SQRT_RATIO;
-  blockNumber: BigInt = DEFAULT_BLOCK_NUMBER;
-  timestamp: BigInt = DEFAULT_TIMESTAMP;
-  txHash: Bytes = DEFAULT_TX_HASH;
-  txIndex: BigInt = DEFAULT_TX_INDEX;
-  logIndex: BigInt = DEFAULT_EVENT_INDEX;
+// extension | fee | type config, hex encoded
+function config(typeConfig: string): string {
+  return (
+    "0x1000000000000000000000000000000000000001" +
+    "0000000000000bb8" +
+    typeConfig
+  );
 }
 
-function createPoolInitializedEvent(
-  overrides: EventOverrides = new EventOverrides(),
+function poolInitialized(
+  configHex: string,
+  sqrtRatio: BigInt,
 ): PoolInitializedEvent {
-  const poolId = overrides.poolId;
-  const token0 = overrides.token0;
-  const token1 = overrides.token1;
-  const core = overrides.core;
-  const extension = overrides.extension;
-
-  const fee = overrides.fee.toU64();
-  const typeConfig = overrides.typeConfig.toU32();
-
-  const tick = overrides.tick.toI32();
-  const sqrtRatio = overrides.sqrtRatio;
-  const blockNumber = overrides.blockNumber;
-  const timestamp = overrides.timestamp;
-  const txHash = overrides.txHash;
-  const txIndex = overrides.txIndex;
-  const logIndex = overrides.logIndex;
-
-  const config = new Uint8Array(32);
-  const extensionBytes = extension as Bytes;
-  for (let i = 0; i < 20; i++) {
-    config[i] = extensionBytes[i];
-  }
-
-  const feeBytes = ByteArray.fromU64(fee).reverse();
-  for (let i = 0; i < 8; i++) {
-    config[20 + i] = feeBytes[i];
-  }
-
-  const typeConfigBytes = ByteArray.fromU32(typeConfig).reverse();
-  for (let i = 0; i < 4; i++) {
-    config[28 + i] = typeConfigBytes[i];
-  }
-
   const event = changetype<PoolInitializedEvent>(newMockEvent());
   const poolKey = new ethereum.Tuple();
-  poolKey.push(ethereum.Value.fromAddress(token0));
-  poolKey.push(ethereum.Value.fromAddress(token1));
-  poolKey.push(ethereum.Value.fromFixedBytes(Bytes.fromUint8Array(config)));
+  poolKey.push(ethereum.Value.fromAddress(Address.fromString(TOKEN0)));
+  poolKey.push(ethereum.Value.fromAddress(Address.fromString(TOKEN1)));
+  poolKey.push(ethereum.Value.fromFixedBytes(Bytes.fromHexString(configHex)));
 
   event.parameters = new Array();
   event.parameters.push(
-    new ethereum.EventParam("poolId", ethereum.Value.fromFixedBytes(poolId)),
+    new ethereum.EventParam(
+      "poolId",
+      ethereum.Value.fromFixedBytes(Bytes.fromHexString(POOL_ID)),
+    ),
   );
   event.parameters.push(
     new ethereum.EventParam("poolKey", ethereum.Value.fromTuple(poolKey)),
   );
   event.parameters.push(
-    new ethereum.EventParam("tick", ethereum.Value.fromI32(tick)),
+    new ethereum.EventParam("tick", ethereum.Value.fromI32(-15)),
   );
   event.parameters.push(
     new ethereum.EventParam(
@@ -124,152 +71,183 @@ function createPoolInitializedEvent(
       ethereum.Value.fromUnsignedBigInt(sqrtRatio),
     ),
   );
-
-  event.address = core;
-  event.block.number = blockNumber;
-  event.block.timestamp = timestamp;
-  event.transaction.hash = txHash;
-  event.transaction.index = txIndex;
-  event.logIndex = logIndex;
-
+  event.address = Address.fromString(CORE);
+  event.block.number = BigInt.fromI32(500);
+  event.transaction.index = BigInt.fromI32(7);
+  event.logIndex = BigInt.fromI32(3);
   return event;
 }
 
-function assertCommonFields(entityId: string, config: Bytes): void {
-  assert.entityCount(ENTITY, 1);
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "coreAddress",
-    DEFAULT_CORE.toHexString(),
-  );
-  assert.fieldEquals(ENTITY, entityId, "poolId", DEFAULT_POOL_ID.toHexString());
-  assert.fieldEquals(ENTITY, entityId, "token0", DEFAULT_TOKEN0.toHexString());
-  assert.fieldEquals(ENTITY, entityId, "token1", DEFAULT_TOKEN1.toHexString());
-  assert.fieldEquals(ENTITY, entityId, "config", config.toHexString());
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "extension",
-    DEFAULT_EXTENSION.toHexString(),
-  );
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "fee",
-    BigInt.fromU64(DEFAULT_FEE).toString(),
-  );
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "blockNumber",
-    DEFAULT_BLOCK_NUMBER.toString(),
-  );
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "transactionIndex",
-    DEFAULT_TX_INDEX.toString(),
-  );
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "eventIndex",
-    DEFAULT_EVENT_INDEX.toString(),
-  );
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "blockTimestamp",
-    DEFAULT_TIMESTAMP.toString(),
-  );
-  assert.fieldEquals(ENTITY, entityId, "tick", DEFAULT_TICK.toString());
-  assert.fieldEquals(
-    ENTITY,
-    entityId,
-    "sqrtRatio",
-    DEFAULT_SQRT_RATIO.toString(),
-  );
-}
+const POOL_INITIALIZATION_ID = "0x00000000000001f40000000700000003";
 
 describe("handlePoolInitialized", () => {
   afterEach(() => {
     clearStore();
   });
 
-  test("stores concentrated pool fields", () => {
-    const event = createPoolInitializedEvent();
-    const config = event.params.poolKey.config;
-    handlePoolInitialized(event);
-    const entityId = poolInitializationId(event).toHexString();
+  test("stores a concentrated pool and keeps the config as emitted", () => {
+    const configHex = config("8000003c");
+    handlePoolInitialized(poolInitialized(configHex, BigInt.fromI32(123456)));
 
-    assertCommonFields(entityId, config);
+    const id = POOL_INITIALIZATION_ID;
+    assert.entityCount("PoolInitialization", 1);
+    assert.fieldEquals("PoolInitialization", id, "config", configHex);
+    assert.fieldEquals("PoolInitialization", id, "coreAddress", CORE);
+    assert.fieldEquals("PoolInitialization", id, "emitter", CORE);
+    assert.fieldEquals("PoolInitialization", id, "poolId", POOL_ID);
+    assert.fieldEquals("PoolInitialization", id, "token0", TOKEN0);
+    assert.fieldEquals("PoolInitialization", id, "token1", TOKEN1);
     assert.fieldEquals(
-      ENTITY,
-      entityId,
-      "tickSpacing",
-      DEFAULT_TICK_SPACING.toString(),
+      "PoolInitialization",
+      id,
+      "extension",
+      "0x1000000000000000000000000000000000000001",
     );
-
-    const stored = graphStore.get(ENTITY, entityId);
-    assert.assertNotNull(stored);
-    assert.assertNull(
-      stored!.get("stableswapAmplification"),
-      "stableswapAmplification should not be set for concentrated pools",
-    );
-    assert.assertNull(
-      stored!.get("stableswapCenterTick"),
-      "stableswapCenterTick should not be set for concentrated pools",
-    );
+    assert.fieldEquals("PoolInitialization", id, "fee", "3000");
+    assert.fieldEquals("PoolInitialization", id, "tickSpacing", "60");
+    assert.fieldEquals("PoolInitialization", id, "tick", "-15");
+    // 123456 << 2, the compact square root price as a 64.128 fixed point number
+    assert.fieldEquals("PoolInitialization", id, "sqrtRatio", "493824");
+    assert.fieldEquals("PoolInitialization", id, "blockNumber", "500");
+    assert.fieldEquals("PoolInitialization", id, "transactionIndex", "7");
+    assert.fieldEquals("PoolInitialization", id, "eventIndex", "3");
   });
 
-  test("packs id as blockNumber + transactionIndex + eventIndex", () => {
-    const overrides = new EventOverrides();
-    overrides.blockNumber = BigInt.fromI32(500);
-    overrides.txIndex = BigInt.fromI32(7);
-    overrides.logIndex = BigInt.fromI32(3);
+  test("stores a stableswap pool", () => {
+    // amplification 12, compressed center tick -2 (0xfffffe)
+    const configHex = config("0cfffffe");
+    // exponent bits 0b11 and mantissa 5
+    const sqrtRatio = BigInt.fromI32(3).leftShift(94).plus(BigInt.fromI32(5));
+    handlePoolInitialized(poolInitialized(configHex, sqrtRatio));
 
-    const event = createPoolInitializedEvent(overrides);
-    handlePoolInitialized(event);
-
-    const entityId = "0x00000000000001f40000000700000003";
-    const stored = graphStore.get(ENTITY, entityId);
-    assert.assertNotNull(stored);
-  });
-
-  test("stores stableswap pool fields", () => {
-    const amplification: u32 = 12;
-    const centerTickCompressed: u32 = 3456;
-
-    const overrides = new EventOverrides();
-    overrides.typeConfig = BigInt.fromU32(
-      (amplification << 24) | centerTickCompressed,
-    );
-
-    const event = createPoolInitializedEvent(overrides);
-    const config = event.params.poolKey.config;
-    handlePoolInitialized(event);
-    const entityId = poolInitializationId(event).toHexString();
-
-    assertCommonFields(entityId, config);
+    const id = POOL_INITIALIZATION_ID;
+    assert.fieldEquals("PoolInitialization", id, "config", configHex);
     assert.fieldEquals(
-      ENTITY,
-      entityId,
+      "PoolInitialization",
+      id,
       "stableswapAmplification",
-      amplification.toString(),
+      "12",
+    );
+    assert.fieldEquals("PoolInitialization", id, "stableswapCenterTick", "-32");
+    assert.fieldEquals(
+      "PoolInitialization",
+      id,
+      "sqrtRatio",
+      "1584563250285286751870879006720",
+    );
+    const stored = store.get("PoolInitialization", id);
+    assert.assertNotNull(stored);
+    assert.assertNull(stored!.get("tickSpacing"));
+  });
+});
+
+// Logs emitted on Ethereum mainnet in transaction
+// 0x459aef621d85b4a4b6733f780da1164c0b964ca79ab35f5064ac6b79828280d7. Expected
+// values were computed with the parsers of the Ekubo indexer from the same data.
+describe("position events", () => {
+  afterEach(() => {
+    clearStore();
+  });
+
+  test("decodes PositionUpdated like the indexer, plus the pool state after", () => {
+    const event = changetype<PositionUpdatedEvent>(
+      eventFromData(
+        CORE,
+        "(address,bytes32,bytes32,int128,bytes32,bytes32)",
+        [
+          "locker",
+          "poolId",
+          "positionId",
+          "liquidityDelta",
+          "balanceUpdate",
+          "stateAfter",
+        ],
+        "0x0000000000000000000000008e0a8e0cf1cde9845d426678e6139194fb442e6e6fde3244f6fa747ae318aba6e982a4281febad4d22e3b134aa299a83a951895d8be86847ad7570f6827683d5a92911cbae5d027e6abd5bd7000004b000000514ffffffffffffffffffffffffffffffffffffffffffffffffffffe6c79b29d50cffffffffffffffffffffffffad68eaea0000000000000000000000000000000080000000400765ddade1623000000386000000000000000000003467e4c26840",
+        368,
+      ),
+    );
+    handlePositionUpdated(event);
+
+    const id = eventId(368);
+    assert.fieldEquals(
+      "PositionUpdate",
+      id,
+      "locker",
+      "0x8e0a8e0cf1cde9845d426678e6139194fb442e6e",
     );
     assert.fieldEquals(
-      ENTITY,
-      entityId,
-      "stableswapCenterTick",
-      (centerTickCompressed * 16).toString(),
+      "PositionUpdate",
+      id,
+      "poolId",
+      "0x6fde3244f6fa747ae318aba6e982a4281febad4d22e3b134aa299a83a951895d",
     );
+    assert.fieldEquals(
+      "PositionUpdate",
+      id,
+      "salt",
+      "3430530284004775188888215212345911956170291379026572172247",
+    );
+    assert.fieldEquals("PositionUpdate", id, "lowerTick", "1200");
+    assert.fieldEquals("PositionUpdate", id, "upperTick", "1300");
+    assert.fieldEquals(
+      "PositionUpdate",
+      id,
+      "liquidityDelta",
+      "-27730000620276",
+    );
+    assert.fieldEquals("PositionUpdate", id, "delta0", "-1385633046");
+    assert.fieldEquals("PositionUpdate", id, "delta1", "0");
+    assert.fieldEquals(
+      "PositionUpdate",
+      id,
+      "liquidityAfter",
+      "57620824221760",
+    );
+    assert.fieldEquals("PositionUpdate", id, "tickAfter", "902");
+    assert.fieldEquals(
+      "PositionUpdate",
+      id,
+      "sqrtRatioAfter",
+      "340436015579406491264959269579299749888",
+    );
+  });
 
-    const stored = graphStore.get(ENTITY, entityId);
-    assert.assertNotNull(stored);
-    assert.assertNull(
-      stored!.get("tickSpacing"),
-      "tickSpacing should not be set for stableswap pools",
+  test("decodes PositionFeesCollected", () => {
+    const event = changetype<PositionFeesCollectedEvent>(
+      eventFromData(
+        CORE,
+        "(address,bytes32,bytes32,uint128,uint128)",
+        ["locker", "poolId", "positionId", "amount0", "amount1"],
+        "0x0000000000000000000000008e0a8e0cf1cde9845d426678e6139194fb442e6e6fde3244f6fa747ae318aba6e982a4281febad4d22e3b134aa299a83a951895d8be86847ad7570f6827683d5a92911cbae5d027e6abd5bd7000004b000000514000000000000000000000000000000000000000000000000000000000003c661000000000000000000000000000000000000000000000000000000000003c3d1",
+        367,
+      ),
+    );
+    handlePositionFeesCollected(event);
+
+    const id = eventId(367);
+    assert.fieldEquals("PositionFeesCollection", id, "lowerTick", "1200");
+    assert.fieldEquals("PositionFeesCollection", id, "upperTick", "1300");
+    assert.fieldEquals("PositionFeesCollection", id, "amount0", "247393");
+    assert.fieldEquals("PositionFeesCollection", id, "amount1", "246737");
+  });
+
+  test("decodes ExtensionRegistered", () => {
+    const event = changetype<ExtensionRegisteredEvent>(
+      eventFromData(
+        CORE,
+        "(address)",
+        ["extension"],
+        "0x000000000000000000000000d47f1b1edcfeabb08f6ebd8fc337c27e636c75ba",
+        1,
+      ),
+    );
+    handleExtensionRegistered(event);
+
+    assert.fieldEquals(
+      "ExtensionRegistration",
+      eventId(1),
+      "extension",
+      "0xd47f1b1edcfeabb08f6ebd8fc337c27e636c75ba",
     );
   });
 });

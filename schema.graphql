@@ -1,4 +1,9 @@
-type PoolInitialization @entity(immutable: true) {
+# Every entity below is one onchain log, stored as emitted, so that the full
+# history of the protocol can be replayed in order. The id of every event is
+# 16 bytes: the block number (8 bytes), the transaction index (4 bytes) and the
+# log index within the block (4 bytes), all big-endian, so ordering by id is
+# chain order across every event type.
+interface Event {
   id: Bytes!
   blockNumber: BigInt!
   transactionIndex: BigInt!
@@ -6,21 +11,386 @@ type PoolInitialization @entity(immutable: true) {
   blockHash: Bytes!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  emitter: Bytes! # address
+}
 
-  coreAddress: Bytes! # address
+# Core
+
+type PoolInitialization implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  coreAddress: Bytes! # address, same as emitter
   poolId: Bytes! # bytes32
-
   token0: Bytes! # address
   token1: Bytes! # address
   config: Bytes! # bytes32
+  extension: Bytes! # address
+  fee: BigInt! # uint64, a fraction of 2**64
+  tickSpacing: Int # uint32, set for concentrated pools
+  stableswapAmplification: Int # uint8, set for stableswap pools
+  stableswapCenterTick: Int # int32, set for stableswap pools
+  tick: Int! # int32
+  sqrtRatio: BigInt! # fixed point 64.128
+}
+
+# The Core emits swaps as a log without topics. See src/receipt.ts.
+type Swap implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  locker: Bytes! # address
+  poolId: Bytes! # bytes32
+  delta0: BigInt! # int128, positive when the pool receives token0
+  delta1: BigInt! # int128
+  liquidityAfter: BigInt! # uint128
+  sqrtRatioAfter: BigInt! # fixed point 64.128
+  tickAfter: Int! # int32
+}
+
+type PositionUpdate implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  locker: Bytes! # address, the owner of the position in Core
+  poolId: Bytes! # bytes32
+  positionId: Bytes! # bytes32
+  salt: BigInt! # uint192
+  lowerTick: Int! # int32
+  upperTick: Int! # int32
+  liquidityDelta: BigInt! # int128
+  delta0: BigInt! # int128, positive when the pool receives token0
+  delta1: BigInt! # int128
+  liquidityAfter: BigInt! # uint128, active liquidity of the pool after the update
+  sqrtRatioAfter: BigInt! # fixed point 64.128
+  tickAfter: Int! # int32
+}
+
+type PositionFeesCollection implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  locker: Bytes! # address
+  poolId: Bytes! # bytes32
+  positionId: Bytes! # bytes32
+  salt: BigInt! # uint192
+  lowerTick: Int! # int32
+  upperTick: Int! # int32
+  amount0: BigInt! # uint128
+  amount1: BigInt! # uint128
+}
+
+type FeesAccumulation implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  poolId: Bytes! # bytes32
+  amount0: BigInt! # uint128
+  amount1: BigInt! # uint128
+}
+
+type ExtensionRegistration implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
 
   extension: Bytes! # address
+}
+
+# Oracle extension, emitted as a log without topics.
+
+type OracleSnapshot implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  # Oracle pools pair the native token (address zero) with this token.
+  token: Bytes! # address
+  timestamp: BigInt! # uint32
+  secondsPerLiquidityCumulative: BigInt! # uint160
+  tickCumulative: BigInt! # int64
+}
+
+# TWAMM extension
+
+type TwammOrderUpdate implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  owner: Bytes! # address
+  salt: Bytes! # bytes32
+  token0: Bytes! # address
+  token1: Bytes! # address
+  config: Bytes! # bytes32 order config
   fee: BigInt! # uint64
+  isSellingToken1: Boolean!
+  sellToken: Bytes! # address
+  buyToken: Bytes! # address
+  startTime: BigInt! # uint64
+  endTime: BigInt! # uint64
+  poolId: Bytes! # bytes32 of the TWAMM pool the order trades in
+  saleRateDelta: BigInt! # int112
+}
 
-  tickSpacing: Int # uint32
-  stableswapAmplification: Int # uint8
-  stableswapCenterTick: Int # int32
+type TwammOrderProceedsWithdrawal implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
 
-  tick: Int! # int32
-  sqrtRatio: BigInt! # uint96
+  owner: Bytes! # address
+  salt: Bytes! # bytes32
+  token0: Bytes! # address
+  token1: Bytes! # address
+  config: Bytes! # bytes32 order config
+  fee: BigInt! # uint64
+  isSellingToken1: Boolean!
+  sellToken: Bytes! # address
+  buyToken: Bytes! # address
+  startTime: BigInt! # uint64
+  endTime: BigInt! # uint64
+  poolId: Bytes! # bytes32
+  amount: BigInt! # uint128
+}
+
+# Emitted as a log without topics.
+type TwammVirtualOrdersExecution implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  poolId: Bytes! # bytes32
+  saleRateToken0: BigInt! # uint112
+  saleRateToken1: BigInt! # uint112
+}
+
+# BoostedFees extensions
+
+type BoostedFeesPoolBoost implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  poolId: Bytes! # bytes32
+  startTime: BigInt! # uint64
+  endTime: BigInt! # uint64
+  rate0: BigInt! # uint112
+  rate1: BigInt! # uint112
+}
+
+# Emitted as a log without topics.
+type BoostedFeesDonation implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  poolId: Bytes! # bytes32
+  donateRate0: BigInt! # uint112
+  donateRate1: BigInt! # uint112
+}
+
+# NFT transfers of Positions, Orders and Auctions tokens, including mints and burns.
+
+type NonfungibleTokenTransfer implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+}
+
+# Incentives
+
+type IncentivesFunding implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  owner: Bytes! # address
+  token: Bytes! # address
+  root: Bytes! # bytes32
+  amountNext: BigInt! # uint128
+}
+
+type IncentivesRefund implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  owner: Bytes! # address
+  token: Bytes! # address
+  root: Bytes! # bytes32
+  refundAmount: BigInt! # uint128
+}
+
+# TokenWrapperFactory
+
+type TokenWrapperDeployment implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  underlyingToken: Bytes! # address
+  unlockTime: BigInt! # uint256
+  tokenWrapper: Bytes! # address
+}
+
+# Auctions
+
+type AuctionCompletion implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  tokenId: BigInt! # uint256
+  token0: Bytes! # address
+  token1: Bytes! # address
+  config: Bytes! # bytes32 auction config
+  creatorAmount: BigInt! # uint128
+  boostAmount: BigInt! # uint128
+}
+
+type AuctionFundsAddition implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  tokenId: BigInt! # uint256
+  token0: Bytes! # address
+  token1: Bytes! # address
+  config: Bytes! # bytes32 auction config
+  saleRate: BigInt! # uint112
+}
+
+type AuctionBoostStart implements Event @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  token0: Bytes! # address
+  token1: Bytes! # address
+  config: Bytes! # bytes32 auction config
+  boostRate: BigInt! # uint112
+  boostEndTime: BigInt! # uint64
+}
+
+type AuctionCreatorProceedsCollection implements Event
+  @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  transactionIndex: BigInt!
+  eventIndex: BigInt!
+  blockHash: Bytes!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  emitter: Bytes!
+
+  tokenId: BigInt! # uint256
+  token0: Bytes! # address
+  token1: Bytes! # address
+  config: Bytes! # bytes32 auction config
+  recipient: Bytes! # address
+  amount: BigInt! # uint128
 }

@@ -3,12 +3,120 @@
     "Core": {
       "startBlock": 24134507,
       "address": "0x00000000000014aA86C5d3c41765bb24e11bd701"
+    },
+    "LegacyTWAMM": {
+      "startBlock": 24134507,
+      "address": "0xd4F1060cB9c1A13e1d2d20379b8aa2cF7541eD9b"
+    },
+    "TWAMM": {
+      "startBlock": 24134507,
+      "address": "0xd47f1B1eDCfEaBb08F6eBd8FC337c27E636C75BA"
+    },
+    "Positions": {
+      "startBlock": 24134507,
+      "address": "0x02D9876A21AF7545f8632C3af76eC90b5ad4b66D"
+    },
+    "RecompiledPositions": {
+      "startBlock": 24134507,
+      "address": "0xA2971E0C37cFdb13aE8440A0C94Ef1A1af39e326"
+    },
+    "LegacyOrders": {
+      "startBlock": 24134507,
+      "address": "0xfF6cF0Ca6d7a30a60539AcD4bB20B3df84EA0644"
+    },
+    "Orders": {
+      "startBlock": 24134507,
+      "address": "0x3325428adB409c239E88ca472F50b0efe00E98B4"
+    },
+    "RecompiledOrders": {
+      "startBlock": 24134507,
+      "address": "0x9bB520B6192F71ec3D015C8a74F914f9c94bF794"
+    },
+    "Incentives": {
+      "startBlock": 24134507,
+      "address": "0xC52D2656cb8C634263E6A15469588beB9C3Bb738"
+    },
+    "TokenWrapperFactory": {
+      "startBlock": 24134507,
+      "address": "0xAA166592922C4020cEfA23448054AD070211790a"
+    },
+    "BoostedFeesConcentrated": {
+      "startBlock": 24134507,
+      "address": "0xd4B54d0ca6979Da05F25895E6e269E678ba00f9e"
+    },
+    "BoostedFeesStableswap": {
+      "startBlock": 24134507,
+      "address": "0x948b9C2C99718034954110cB61a6e08e107745f9"
+    },
+    "Auctions": {
+      "startBlock": 24134507,
+      "address": "0xcB4e1b5Fb7b120dB0815aFA63453C969136C0Ec9"
+    },
+    "CoreTokenInflows": {
+      "startBlock": 24134507
+    },
+    "CoreTokenOutflows": {
+      "startBlock": 24134507
     }
   },
   "arbitrum-one": {
     "Core": {
       "startBlock": 416469410,
       "address": "0x00000000000014aA86C5d3c41765bb24e11bd701"
+    },
+    "LegacyTWAMM": {
+      "startBlock": 416469410,
+      "address": "0xd4F1060cB9c1A13e1d2d20379b8aa2cF7541eD9b"
+    },
+    "TWAMM": {
+      "startBlock": 416469410,
+      "address": "0xd47f1B1eDCfEaBb08F6eBd8FC337c27E636C75BA"
+    },
+    "Positions": {
+      "startBlock": 416469410,
+      "address": "0x02D9876A21AF7545f8632C3af76eC90b5ad4b66D"
+    },
+    "RecompiledPositions": {
+      "startBlock": 416469410,
+      "address": "0xA2971E0C37cFdb13aE8440A0C94Ef1A1af39e326"
+    },
+    "LegacyOrders": {
+      "startBlock": 416469410,
+      "address": "0xfF6cF0Ca6d7a30a60539AcD4bB20B3df84EA0644"
+    },
+    "Orders": {
+      "startBlock": 416469410,
+      "address": "0x3325428adB409c239E88ca472F50b0efe00E98B4"
+    },
+    "RecompiledOrders": {
+      "startBlock": 416469410,
+      "address": "0x9bB520B6192F71ec3D015C8a74F914f9c94bF794"
+    },
+    "Incentives": {
+      "startBlock": 416469410,
+      "address": "0xC52D2656cb8C634263E6A15469588beB9C3Bb738"
+    },
+    "TokenWrapperFactory": {
+      "startBlock": 416469410,
+      "address": "0xAA166592922C4020cEfA23448054AD070211790a"
+    },
+    "BoostedFeesConcentrated": {
+      "startBlock": 416469410,
+      "address": "0xd4B54d0ca6979Da05F25895E6e269E678ba00f9e"
+    },
+    "BoostedFeesStableswap": {
+      "startBlock": 416469410,
+      "address": "0x948b9C2C99718034954110cB61a6e08e107745f9"
+    },
+    "Auctions": {
+      "startBlock": 416469410,
+      "address": "0xcB4e1b5Fb7b120dB0815aFA63453C969136C0Ec9"
+    },
+    "CoreTokenInflows": {
+      "startBlock": 416469410
+    },
+    "CoreTokenOutflows": {
+      "startBlock": 416469410
     }
   }
 }

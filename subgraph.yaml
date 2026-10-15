@@ -4,22 +4,390 @@ indexerHints:
 schema:
   file: ./schema.graphql
 dataSources:
+  # Can't put the shared addresses in this file because graph build --network xyz
+  # overwrites them with the (potentially missing) address in networks.json.
+  #
+  # Every handler declares receipt: true to read the logs without topics from the
+  # receipt of its transaction. See src/receipt.ts.
   - kind: ethereum
     name: Core
     source:
       abi: Core
-      # Can't put the shared address here because graph build --network xyz will just overwrite it
-      # with the (potentially non-existing) `address` property in networks.json
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
         - PoolInitialization
+        - PositionUpdate
+        - PositionFeesCollection
+        - FeesAccumulation
+        - ExtensionRegistration
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
       abis:
         - name: Core
           file: ./abis/Core.json
       eventHandlers:
         - event: PoolInitialized(bytes32,(address,address,bytes32),int32,uint96)
           handler: handlePoolInitialized
+          receipt: true
+        - event: PositionUpdated(address,bytes32,bytes32,int128,bytes32,bytes32)
+          handler: handlePositionUpdated
+          receipt: true
+        - event: PositionFeesCollected(address,bytes32,bytes32,uint128,uint128)
+          handler: handlePositionFeesCollected
+          receipt: true
+        - event: FeesAccumulated(bytes32,uint128,uint128)
+          handler: handleFeesAccumulated
+          receipt: true
+        - event: ExtensionRegistered(address)
+          handler: handleExtensionRegistered
+          receipt: true
       file: ./src/core.ts
+  - kind: ethereum
+    name: LegacyTWAMM
+    source:
+      abi: TWAMM
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TwammOrderUpdate
+        - TwammOrderProceedsWithdrawal
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: TWAMM
+          file: ./abis/TWAMM.json
+      eventHandlers:
+        - event: OrderUpdated(address,bytes32,(address,address,bytes32),int112)
+          handler: handleOrderUpdated
+          receipt: true
+        - event: OrderProceedsWithdrawn(address,bytes32,(address,address,bytes32),uint128)
+          handler: handleOrderProceedsWithdrawn
+          receipt: true
+      file: ./src/twamm.ts
+  - kind: ethereum
+    name: TWAMM
+    source:
+      abi: TWAMM
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TwammOrderUpdate
+        - TwammOrderProceedsWithdrawal
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: TWAMM
+          file: ./abis/TWAMM.json
+      eventHandlers:
+        - event: OrderUpdated(address,bytes32,(address,address,bytes32),int112)
+          handler: handleOrderUpdated
+          receipt: true
+        - event: OrderProceedsWithdrawn(address,bytes32,(address,address,bytes32),uint128)
+          handler: handleOrderProceedsWithdrawn
+          receipt: true
+      file: ./src/twamm.ts
+  - kind: ethereum
+    name: Positions
+    source:
+      abi: ERC721
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NonfungibleTokenTransfer
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleNonfungibleTokenTransfer
+          receipt: true
+      file: ./src/nft.ts
+  - kind: ethereum
+    name: RecompiledPositions
+    source:
+      abi: ERC721
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NonfungibleTokenTransfer
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleNonfungibleTokenTransfer
+          receipt: true
+      file: ./src/nft.ts
+  - kind: ethereum
+    name: LegacyOrders
+    source:
+      abi: ERC721
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NonfungibleTokenTransfer
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleNonfungibleTokenTransfer
+          receipt: true
+      file: ./src/nft.ts
+  - kind: ethereum
+    name: Orders
+    source:
+      abi: ERC721
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NonfungibleTokenTransfer
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleNonfungibleTokenTransfer
+          receipt: true
+      file: ./src/nft.ts
+  - kind: ethereum
+    name: RecompiledOrders
+    source:
+      abi: ERC721
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NonfungibleTokenTransfer
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: ERC721
+          file: ./abis/ERC721.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleNonfungibleTokenTransfer
+          receipt: true
+      file: ./src/nft.ts
+  - kind: ethereum
+    name: Incentives
+    source:
+      abi: Incentives
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - IncentivesFunding
+        - IncentivesRefund
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: Incentives
+          file: ./abis/Incentives.json
+      eventHandlers:
+        - event: Funded((address,address,bytes32),uint128)
+          handler: handleFunded
+          receipt: true
+        - event: Refunded((address,address,bytes32),uint128)
+          handler: handleRefunded
+          receipt: true
+      file: ./src/incentives.ts
+  - kind: ethereum
+    name: TokenWrapperFactory
+    source:
+      abi: TokenWrapperFactory
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TokenWrapperDeployment
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: TokenWrapperFactory
+          file: ./abis/TokenWrapperFactory.json
+      eventHandlers:
+        - event: TokenWrapperDeployed(address,uint256,address)
+          handler: handleTokenWrapperDeployed
+          receipt: true
+      file: ./src/token-wrapper-factory.ts
+  - kind: ethereum
+    name: BoostedFeesConcentrated
+    source:
+      abi: BoostedFees
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - BoostedFeesPoolBoost
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: BoostedFees
+          file: ./abis/BoostedFees.json
+      eventHandlers:
+        - event: PoolBoosted(bytes32,uint64,uint64,uint112,uint112)
+          handler: handlePoolBoosted
+          receipt: true
+      file: ./src/boosted-fees.ts
+  - kind: ethereum
+    name: BoostedFeesStableswap
+    source:
+      abi: BoostedFees
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - BoostedFeesPoolBoost
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: BoostedFees
+          file: ./abis/BoostedFees.json
+      eventHandlers:
+        - event: PoolBoosted(bytes32,uint64,uint64,uint112,uint112)
+          handler: handlePoolBoosted
+          receipt: true
+      file: ./src/boosted-fees.ts
+  - kind: ethereum
+    name: Auctions
+    source:
+      abi: Auctions
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - AuctionCompletion
+        - AuctionFundsAddition
+        - AuctionBoostStart
+        - AuctionCreatorProceedsCollection
+        - NonfungibleTokenTransfer
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: Auctions
+          file: ./abis/Auctions.json
+      eventHandlers:
+        - event: AuctionCompleted(uint256,(address,address,bytes32),uint128,uint128)
+          handler: handleAuctionCompleted
+          receipt: true
+        - event: AuctionFundsAdded(uint256,(address,address,bytes32),uint112)
+          handler: handleAuctionFundsAdded
+          receipt: true
+        - event: BoostStarted((address,address,bytes32),uint112,uint64)
+          handler: handleBoostStarted
+          receipt: true
+        - event: CreatorProceedsCollected(uint256,(address,address,bytes32),address,uint128)
+          handler: handleCreatorProceedsCollected
+          receipt: true
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleNonfungibleTokenTransfer
+          receipt: true
+      file: ./src/auctions.ts
+  # ERC-20 transfers to and from the Core, from any token contract. They only reach
+  # swaps in transactions that emit no other event handled here.
+  - kind: ethereum
+    name: CoreTokenInflows
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleCoreTokenTransfer
+          topic2:
+            [
+              "0x00000000000000000000000000000000000014aa86c5d3c41765bb24e11bd701",
+            ]
+          receipt: true
+      file: ./src/core-token-transfers.ts
+  - kind: ethereum
+    name: CoreTokenOutflows
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Swap
+        - OracleSnapshot
+        - TwammVirtualOrdersExecution
+        - BoostedFeesDonation
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleCoreTokenTransfer
+          topic1:
+            [
+              "0x00000000000000000000000000000000000014aa86c5d3c41765bb24e11bd701",
+            ]
+          receipt: true
+      file: ./src/core-token-transfers.ts
