@@ -9,6 +9,8 @@
     "tests/.bin/**",
     "tests/.latest.json",
     "abis/**",
-    "subgraph.*.yaml"
+    "subgraph.*.yaml",
+    "substreams/target/**",
+    "substreams/tests/fixtures/**"
   ]
 }

@@ -36,3 +36,7 @@ typechain-types
 
 # Hardhat files
 cache
+
+# Substreams build output
+substreams/target/
+substreams/*.spkg
