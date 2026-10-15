@@ -7,7 +7,7 @@
     "deploy:mainnet": "graph deploy ekubo-v3 subgraph.mainnet.yaml",
     "build:arbitrum-one": "cp subgraph.yaml subgraph.arbitrum-one.yaml && graph build subgraph.arbitrum-one.yaml --network arbitrum-one",
     "deploy:arbitrum-one": "graph deploy ekubo-v3-arbitrum-one subgraph.arbitrum-one.yaml --network arbitrum-one",
-    "test": "graph test",
+    "test": "graph test -v 0.6.0",
     "lint": "oxlint --max-warnings=0",
     "fix": "oxfmt",
     "format:check": "oxfmt --check"
